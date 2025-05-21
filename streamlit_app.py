@@ -57,6 +57,12 @@ with tabs[0]:
             origin = st.text_input("원산지", key="origin")
 
         submitted = st.form_submit_button("추가")
+        if submitted:
+            st.session_state.part = ""
+            st.session_state.qty = 0
+            st.session_state.price = 0.0
+            st.session_state.amount = 0.0
+            st.session_state.origin = ""
 
     if submitted:
         manual_row = {
