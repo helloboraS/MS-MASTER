@@ -26,8 +26,10 @@ def reset_inputs():
         "amount": 0.0,
         "origin": ""
     }.items():
-        if key in st.session_state:
+        try:
             st.session_state[key] = default
+        except st.StreamlitAPIException:
+            pass
 
 # --- Tabs ---
 tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 병합"])
