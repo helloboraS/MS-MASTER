@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit import StreamlitAPIException
 st.set_page_config(layout="wide")
 
 import pandas as pd
@@ -29,7 +28,7 @@ def reset_inputs():
     }.items():
         try:
             st.session_state[key] = default
-        except StreamlitAPIException:
+        except Exception:
             pass
 
 # --- Tabs ---
