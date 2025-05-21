@@ -86,7 +86,7 @@ with tabs[0]:
         st.subheader("🗒 수기 입력 항목")
         df_manual = pd.DataFrame(st.session_state.manual_data)
 
-        df_manual['선택'] = False
+        df_manual.insert(0, '선택', False)
         selected_rows = st.data_editor(df_manual, num_rows='dynamic', use_container_width=True, key="edit_table")
         selected_indices = selected_rows[selected_rows['선택']].index.tolist()
 
@@ -110,7 +110,7 @@ with tabs[0]:
             else:
                 st.warning("수정은 한 행만 선택해야 합니다.")
 
-        st.dataframe(df_manual)
+        # st.dataframe(df_manual)  # 중복 출력 제거
 
         
         if st.button("수기 입력 전체 삭제"):
