@@ -76,14 +76,16 @@ if uploaded_file:
                 input_df = pd.concat([input_df, df_manual], ignore_index=True)
 
             merged_result = pd.merge(input_df, master_df, on='자재코드', how='left', indicator=True)
+            merged_cleaned = merged_result.drop(columns=['_merge'])
 
             def highlight_unmatched(row):
-                return ['background-color: #ffdddd'] * len(row) if row['_merge'] == 'left_only' else [''] * len(row)
+                return ['background-color: #ffdddd'] * len(row) if row.get('_merge') == 'left_only' else [''] * len(row)
 
             st.subheader("🔍 자재코드별 필터")
             selected_part = st.selectbox("자재코드 선택", ["(전체)"] + sorted(merged_result['자재코드'].dropna().unique().tolist()))
             if selected_part != "(전체)":
                 merged_result = merged_result[merged_result['자재코드'] == selected_part]
+                merged_cleaned = merged_result.drop(columns=['_merge'])
 
             st.subheader("📊 수량 및 금액 합계")
             st.markdown(f"**총 수량:** {merged_result['수량'].sum()} | **총 금액:** {merged_result['총금액'].sum():,.0f} 원")
@@ -93,25 +95,25 @@ if uploaded_file:
                 '전파인증번호', '전기기관', '전기인증번호', '정격전압',
                 '원산지', '수량', '단가', '총금액'
             ]
-            filtered_result = merged_result[[col for col in columns_to_show if col in merged_result.columns]]
+            filtered_result = merged_cleaned[[col for col in columns_to_show if col in merged_cleaned.columns]]
 
             st.success('병합 완료! 아래에서 결과 확인 가능')
             st.dataframe(filtered_result.style.apply(highlight_unmatched, axis=1))
 
-            radio_df = merged_result.dropna(subset=['전파인증번호'])
+            radio_df = merged_cleaned.dropna(subset=['전파인증번호'])
             radio_summary = radio_df.groupby([
                 '세번부호' if '세번부호' in radio_df.columns else 'HS CODE',
                 '원산지', '모델명', '전파인증번호'
             ], as_index=False)['수량'].sum()
 
-            elec_df = merged_result.dropna(subset=['전기인증번호'])
+            elec_df = merged_cleaned.dropna(subset=['전기인증번호'])
             elec_summary = elec_df.groupby([
                 '전기기관',
                 '세번부호' if '세번부호' in elec_df.columns else 'HS CODE',
                 '원산지', '모델명', '전기인증번호', '정격전압'
             ], as_index=False)['수량'].sum()
 
-            summary_sheet4 = merged_result.copy()
+            summary_sheet4 = merged_cleaned.copy()
             summary_sheet4['공란'] = ''
             summary_sheet4['수량단위'] = 'EA'
             sheet4_columns = [
