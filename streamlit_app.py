@@ -15,7 +15,7 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.title('INVOICE 작업')
+st.title('자재코드 인증정보 자동 병합')
 
 # --- Input State Reset ---
 def reset_inputs():
@@ -32,7 +32,7 @@ def reset_inputs():
             pass
 
 # --- Tabs ---
-tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 업로드"])
+tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 병합"])
 
 # --- Manual Input Tab ---
 with tabs[0]:
@@ -87,6 +87,18 @@ with tabs[0]:
 
         st.dataframe(df_manual)
 
+        edit_idx = st.number_input("수정할 행 번호", min_value=0, max_value=len(df_manual)-1 if len(df_manual) > 0 else 0, step=1)
+        if st.button("해당 행 수정하기"):
+            row = df_manual.iloc[edit_idx]
+            st.session_state.manual_part = row["자재코드"]
+            st.session_state.manual_qty = row["수량"]
+            st.session_state.manual_price = row["단가"]
+            st.session_state.manual_amount = row["총금액"]
+            st.session_state.manual_origin = row["원산지"]
+            st.session_state.manual_data.pop(edit_idx)
+            st.success(f"{edit_idx}번 항목을 수정 모드로 불러왔습니다. 항목을 수정 후 '추가' 버튼으로 반영해 주세요.")
+            st.rerun()
+
         if st.button("수기 입력 전체 삭제"):
             st.session_state.manual_data = []
             st.success("수기 입력 항목이 초기화되었습니다.")
@@ -133,7 +145,7 @@ with tabs[0]:
 
 # --- Excel Upload & Merge Tab ---
 with tabs[1]:
-    st.subheader("📂 엑셀 업로드")
+    st.subheader("📂 엑셀 업로드 및 병합")
     uploaded_file = st.file_uploader("자재코드, 수량, 원산지, 단가, 총금액 포함된 엑셀 업로드", type=["xlsx"])
 
     if uploaded_file:
