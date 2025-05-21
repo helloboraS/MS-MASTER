@@ -15,7 +15,49 @@ master_df = load_master_data()
 # --- App Title ---
 st.title('자재코드 인증정보 자동 병합')
 
+# --- 수기 입력 기능 ---
+st.subheader("🔧 수기 입력")
+if 'manual_data' not in st.session_state:
+    st.session_state.manual_data = []
+
+with st.form("manual_entry_form"):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        manual_part = st.text_input("자재코드")
+        manual_origin = st.text_input("원산지")
+    with col2:
+        manual_qty = st.number_input("수량", min_value=0, step=1)
+        manual_price = st.number_input("단가", min_value=0.0, step=10.0)
+    with col3:
+        manual_amount = st.number_input("총금액", value=0.0, step=10.0)
+
+    submitted = st.form_submit_button("추가")
+
+    if submitted:
+        st.session_state.manual_data.append({
+            "자재코드": manual_part,
+            "원산지": manual_origin,
+            "수량": manual_qty,
+            "단가": manual_price,
+            "총금액": manual_amount
+        })
+        st.success("수기 항목이 추가되었습니다.")
+
+if st.session_state.manual_data:
+    df_manual = pd.DataFrame(st.session_state.manual_data)
+    st.dataframe(df_manual)
+
+    if st.button("수기 입력 전체 삭제"):
+        st.session_state.manual_data = []
+        st.success("수기 입력 항목이 초기화되었습니다.")
+
+    towrite_manual = BytesIO()
+    df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
+    towrite_manual.seek(0)
+    st.download_button("수기입력 다운로드", towrite_manual, file_name="manual_input.xlsx")
+
 # --- 엑셀 업로드 ---
+st.subheader("📂 엑셀 업로드 및 병합")
 uploaded_file = st.file_uploader("자재코드, 수량, 원산지, 단가, 총금액 포함된 엑셀 업로드", type=["xlsx"])
 
 if uploaded_file:
@@ -25,8 +67,22 @@ if uploaded_file:
         if '자재코드' not in input_df.columns:
             st.error("'자재코드' 컬럼이 엑셀에 포함되어 있어야 합니다.")
         else:
-            # 병합 수행
+            # 수기 입력 포함
+            if st.session_state.manual_data:
+                df_manual = pd.DataFrame(st.session_state.manual_data)
+                input_df = pd.concat([input_df, df_manual], ignore_index=True)
+
             merged_result = pd.merge(input_df, master_df, on='자재코드', how='left')
+
+            # 자재코드 필터 추가
+            st.subheader("🔍 자재코드별 필터")
+            selected_part = st.selectbox("자재코드 선택", ["(전체)"] + sorted(merged_result['자재코드'].dropna().unique().tolist()))
+            if selected_part != "(전체)":
+                merged_result = merged_result[merged_result['자재코드'] == selected_part]
+
+            # 수량 총합 표시
+            st.subheader("📊 수량 및 금액 합계")
+            st.markdown(f"**총 수량:** {merged_result['수량'].sum()} | **총 금액:** {merged_result['총금액'].sum():,.0f} 원")
 
             # 필요한 컬럼 순서로 재정렬 (Sheet 1)
             columns_to_show = [
