@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(layout="wide")
+
 import pandas as pd
 from io import BytesIO
 
@@ -13,11 +15,10 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.set_page_config(layout="wide")
 st.title('자재코드 인증정보 자동 병합')
 
 # --- 수기 입력 기능 ---
-st.subheader("🔧 수기 입력")
+st.subheader("🐸 수기 입력")
 if 'manual_data' not in st.session_state:
     st.session_state.manual_data = []
 
