@@ -24,11 +24,15 @@ if 'manual_data' not in st.session_state:
 
 # --- Input State Reset ---
 def reset_inputs():
-    st.session_state.part = ""
-    st.session_state.qty = 0
-    st.session_state.price = 0.0
-    st.session_state.amount = 0.0
-    st.session_state.origin = ""
+    for key, val in {
+        "part": "",
+        "qty": 0,
+        "price": 0.0,
+        "amount": 0.0,
+        "origin": ""
+    }.items():
+        if key in st.session_state:
+            st.session_state[key] = val
 
 with st.form("manual_entry_form"):
     cols = st.columns([2, 1, 1, 1, 1])
@@ -60,7 +64,6 @@ if st.session_state.manual_data:
     st.subheader("🗒 수기 입력 항목")
     df_manual = pd.DataFrame(st.session_state.manual_data)
 
-    # 체크박스 선택 삭제 기능
     selected_indices = st.multiselect("삭제할 항목 선택 (인덱스)", options=df_manual.index.tolist())
     if st.button("선택 항목 삭제") and selected_indices:
         st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
