@@ -22,6 +22,14 @@ st.subheader("🔧 수기 입력")
 if 'manual_data' not in st.session_state:
     st.session_state.manual_data = []
 
+# --- Input State Reset ---
+def reset_inputs():
+    st.session_state.part = ""
+    st.session_state.qty = 0
+    st.session_state.price = 0.0
+    st.session_state.amount = 0.0
+    st.session_state.origin = ""
+
 with st.form("manual_entry_form"):
     cols = st.columns([2, 1, 1, 1, 1])
     with cols[0]:
@@ -39,21 +47,32 @@ with st.form("manual_entry_form"):
 
     if submitted:
         st.session_state.manual_data.append({
-            "자재코드": manual_part,
-            "수량": manual_qty,
-            "단가": manual_price,
-            "총금액": manual_amount,
-            "원산지": manual_origin
+            "자재코드": st.session_state.part,
+            "수량": st.session_state.qty,
+            "단가": st.session_state.price,
+            "총금액": st.session_state.amount,
+            "원산지": st.session_state.origin
         })
-        st.success("수기 항목이 추가되었습니다.")
+        reset_inputs()
+        st.experimental_rerun()
 
 if st.session_state.manual_data:
+    st.subheader("🗒 수기 입력 항목")
     df_manual = pd.DataFrame(st.session_state.manual_data)
+
+    # 체크박스 선택 삭제 기능
+    selected_indices = st.multiselect("삭제할 항목 선택 (인덱스)", options=df_manual.index.tolist())
+    if st.button("선택 항목 삭제") and selected_indices:
+        st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
+        st.success("선택한 항목이 삭제되었습니다.")
+        st.experimental_rerun()
+
     st.dataframe(df_manual)
 
     if st.button("수기 입력 전체 삭제"):
         st.session_state.manual_data = []
         st.success("수기 입력 항목이 초기화되었습니다.")
+        st.experimental_rerun()
 
     towrite_manual = BytesIO()
     df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
