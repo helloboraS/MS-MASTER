@@ -74,7 +74,7 @@ with tabs[0]:
 
         st.session_state.manual_data.append(manual_row)
         reset_inputs()
-        st.experimental_rerun()
+        st.rerun()
 
     if st.session_state.manual_data:
         st.subheader("🗒 수기 입력 항목")
@@ -84,14 +84,14 @@ with tabs[0]:
         if st.button("선택 항목 삭제") and selected_indices:
             st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
             st.success("선택한 항목이 삭제되었습니다.")
-            st.experimental_rerun()
+            st.rerun()
 
         st.dataframe(df_manual)
 
         if st.button("수기 입력 전체 삭제"):
             st.session_state.manual_data = []
             st.success("수기 입력 항목이 초기화되었습니다.")
-            st.experimental_rerun()
+            st.rerun()
 
         towrite_manual = BytesIO()
         df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
