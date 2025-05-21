@@ -15,7 +15,7 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.title('자재코드 인증정보 자동 병합')
+st.title('INVOICE 작업')
 
 # --- Input State Reset ---
 def reset_inputs():
