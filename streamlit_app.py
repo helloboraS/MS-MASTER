@@ -37,6 +37,7 @@ tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 업로드"])
 # --- Manual Input Tab ---
 with tabs[0]:
     st.subheader("🔧 수기 입력")
+    
     if 'manual_data' not in st.session_state:
         st.session_state.manual_data = []
 
@@ -161,6 +162,7 @@ with tabs[0]:
 # --- Excel Upload & Merge Tab ---
 with tabs[1]:
     st.subheader("📂 엑셀 업로드")
+    st.markdown("엑셀 업로드")
     uploaded_file = st.file_uploader("자재코드, 수량, 원산지, 단가, 총금액 포함된 엑셀 업로드", type=["xlsx"])
 
     if uploaded_file:
@@ -223,6 +225,7 @@ with tabs[1]:
                     'HS CODE', '원산지', '공란', '수량', '수량단위', '단가', '총금액', '자재코드'
                 ]
                 sheet4_result = summary_sheet4[[col for col in sheet4_columns if col in summary_sheet4.columns]]
+sheet4_result = sheet4_result.sort_values(by=[col for col in ['HS CODE', '원산지'] if col in sheet4_result.columns])
 
                 towrite = BytesIO()
                 with pd.ExcelWriter(towrite, engine='openpyxl') as writer:
