@@ -51,8 +51,9 @@ with tabs[0]:
         with cols[2]:
             price = st.number_input("단가", min_value=0.0, step=10.0, key="price")
         with cols[3]:
-            auto_amount = st.session_state.qty * st.session_state.price
-            amount = st.number_input("총금액", value=auto_amount, step=10.0, key="amount")
+            calculated_amount = st.session_state.qty * st.session_state.price
+            st.markdown(f"💰 **자동 계산 총금액:** `{calculated_amount:,.0f}` 원")
+            amount = st.number_input("총금액 (수정 가능)", value=calculated_amount, step=10.0, key="amount")
         with cols[4]:
             origin = st.text_input("원산지", key="origin")
 
@@ -115,7 +116,7 @@ with tabs[1]:
                     input_df = pd.concat([input_df, df_manual], ignore_index=True)
 
                 merged_result = pd.merge(input_df, master_df, on='자재코드', how='left', indicator=True)
-                merged_cleaned = merged_result.drop(columns=['_merge'])
+                merged_cleaned = merged_result.drop(columns=['_merge']) if '_merge' in merged_result.columns else merged_result.copy()
 
                 def highlight_unmatched(row):
                     return ['background-color: #ffdddd'] * len(row) if row.get('_merge') == 'left_only' else [''] * len(row)
@@ -124,7 +125,7 @@ with tabs[1]:
                 selected_part = st.selectbox("자재코드 선택", ["(전체)"] + sorted(merged_result['자재코드'].dropna().unique().tolist()))
                 if selected_part != "(전체)":
                     merged_result = merged_result[merged_result['자재코드'] == selected_part]
-                    merged_cleaned = merged_result.drop(columns=['_merge'])
+                    merged_cleaned = merged_result.drop(columns=['_merge']) if '_merge' in merged_result.columns else merged_result.copy()
 
                 st.subheader("📊 수량 및 금액 합계")
                 st.markdown(f"**총 수량:** {merged_result['수량'].sum()} | **총 금액:** {merged_result['총금액'].sum():,.0f} 원")
@@ -140,17 +141,21 @@ with tabs[1]:
                 st.dataframe(filtered_result.style.apply(highlight_unmatched, axis=1))
 
                 radio_df = merged_cleaned.dropna(subset=['전파인증번호'])
-                radio_summary = radio_df.groupby([
-                    '세번부호' if '세번부호' in radio_df.columns else 'HS CODE',
-                    '원산지', '모델명', '전파인증번호'
-                ], as_index=False)['수량'].sum()
+                radio_summary = pd.DataFrame()
+                if not radio_df.empty:
+                    radio_summary = radio_df.groupby([
+                        '세번부호' if '세번부호' in radio_df.columns else 'HS CODE',
+                        '원산지', '모델명', '전파인증번호'
+                    ], as_index=False)['수량'].sum()
 
                 elec_df = merged_cleaned.dropna(subset=['전기인증번호'])
-                elec_summary = elec_df.groupby([
-                    '전기기관',
-                    '세번부호' if '세번부호' in elec_df.columns else 'HS CODE',
-                    '원산지', '모델명', '전기인증번호', '정격전압'
-                ], as_index=False)['수량'].sum()
+                elec_summary = pd.DataFrame()
+                if not elec_df.empty:
+                    elec_summary = elec_df.groupby([
+                        '전기기관',
+                        '세번부호' if '세번부호' in elec_df.columns else 'HS CODE',
+                        '원산지', '모델명', '전기인증번호', '정격전압'
+                    ], as_index=False)['수량'].sum()
 
                 summary_sheet4 = merged_cleaned.copy()
                 summary_sheet4['공란'] = ''
