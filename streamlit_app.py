@@ -59,7 +59,13 @@ with tabs[0]:
         submitted = st.form_submit_button("추가")
 
     if submitted:
-                manual_row = {
+        manual_row = {
+            "자재코드": st.session_state.part,
+            "수량": st.session_state.qty,
+            "단가": st.session_state.price,
+            "총금액": st.session_state.amount,
+            "원산지": st.session_state.origin
+        }{
             "자재코드": st.session_state.part,
             "수량": st.session_state.qty,
             "단가": st.session_state.price,
