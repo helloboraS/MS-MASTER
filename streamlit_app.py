@@ -19,11 +19,15 @@ st.title('자재코드 인증정보 자동 병합')
 
 # --- Input State Reset ---
 def reset_inputs():
-    st.session_state.part = ""
-    st.session_state.qty = 0
-    st.session_state.price = 0.0
-    st.session_state.amount = 0.0
-    st.session_state.origin = ""
+    for key, default in {
+        "part": "",
+        "qty": 0,
+        "price": 0.0,
+        "amount": 0.0,
+        "origin": ""
+    }.items():
+        if key in st.session_state:
+            st.session_state[key] = default
 
 # --- Tabs ---
 tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 병합"])
