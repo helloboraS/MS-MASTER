@@ -225,7 +225,7 @@ with tabs[1]:
                     'HS CODE', '원산지', '공란', '수량', '수량단위', '단가', '총금액', '자재코드'
                 ]
                 sheet4_result = summary_sheet4[[col for col in sheet4_columns if col in summary_sheet4.columns]]
-sheet4_result = sheet4_result.sort_values(by=[col for col in ['HS CODE', '원산지'] if col in sheet4_result.columns])
+                sheet4_result = sheet4_result.sort_values(by=[col for col in ['HS CODE', '원산지'] if col in sheet4_result.columns])
 
                 towrite = BytesIO()
                 with pd.ExcelWriter(towrite, engine='openpyxl') as writer:
