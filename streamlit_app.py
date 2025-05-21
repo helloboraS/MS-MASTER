@@ -15,7 +15,7 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.title('INVOICE 작업')
+st.title('자재코드 인증정보 자동 병합')
 
 # --- Input State Reset ---
 def reset_inputs():
@@ -42,11 +42,17 @@ with tabs[0]:
         st.session_state.manual_data = []
 
     with st.form("manual_entry_form"):
-        manual_part = st.text_input("자재코드", key="part")
-        manual_qty = st.number_input("수량", min_value=0, step=1, key="qty")
-        manual_price = st.number_input("단가", min_value=0.0, step=10.0, key="price")
-        manual_amount = st.number_input("총금액", value=0.0, step=10.0, key="amount")
-        manual_origin = st.text_input("원산지", key="origin")
+        cols = st.columns([2, 1, 1, 1, 2])
+        with cols[0]:
+            st.text_input("자재코드", key="part")
+        with cols[1]:
+            st.number_input("수량", min_value=0, step=1, key="qty")
+        with cols[2]:
+            st.number_input("단가", min_value=0.0, step=10.0, key="price")
+        with cols[3]:
+            st.number_input("총금액", value=0.0, step=10.0, key="amount")
+        with cols[4]:
+            st.text_input("원산지", key="origin")
 
         submitted = st.form_submit_button("추가")
 
@@ -59,7 +65,7 @@ with tabs[0]:
                 "원산지": st.session_state.origin
             })
             reset_inputs()
-            st.experimental_rerun()
+            st.rerun()
 
     if st.session_state.manual_data:
         st.subheader("🗒 수기 입력 항목")
@@ -69,14 +75,14 @@ with tabs[0]:
         if st.button("선택 항목 삭제") and selected_indices:
             st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
             st.success("선택한 항목이 삭제되었습니다.")
-            st.experimental_rerun()
+            st.rerun()
 
         st.dataframe(df_manual)
 
         if st.button("수기 입력 전체 삭제"):
             st.session_state.manual_data = []
             st.success("수기 입력 항목이 초기화되었습니다.")
-            st.experimental_rerun()
+            st.rerun()
 
         towrite_manual = BytesIO()
         df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
