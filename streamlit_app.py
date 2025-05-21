@@ -24,15 +24,18 @@ if 'manual_data' not in st.session_state:
 
 # --- Input State Reset ---
 def reset_inputs():
-    for key, val in {
+    keys_defaults = {
         "part": "",
         "qty": 0,
         "price": 0.0,
         "amount": 0.0,
         "origin": ""
-    }.items():
-        if key in st.session_state:
+    }
+    for key, val in keys_defaults.items():
+        try:
             st.session_state[key] = val
+        except st.StreamlitAPIException:
+            pass
 
 with st.form("manual_entry_form"):
     cols = st.columns([2, 1, 1, 1, 1])
