@@ -15,7 +15,7 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.title('자재코드 인증정보 자동 병합')
+st.title('INVOICE 작업')
 
 # --- Input State Reset ---
 def reset_inputs():
@@ -32,7 +32,7 @@ def reset_inputs():
             pass
 
 # --- Tabs ---
-tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 병합"])
+tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 업로드"])
 
 # --- Manual Input Tab ---
 with tabs[0]:
@@ -145,7 +145,7 @@ with tabs[0]:
 
 # --- Excel Upload & Merge Tab ---
 with tabs[1]:
-    st.subheader("📂 엑셀 업로드 및 병합")
+    st.subheader("📂 엑셀 업로드")
     uploaded_file = st.file_uploader("자재코드, 수량, 원산지, 단가, 총금액 포함된 엑셀 업로드", type=["xlsx"])
 
     if uploaded_file:
