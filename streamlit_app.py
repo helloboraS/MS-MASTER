@@ -86,27 +86,33 @@ with tabs[0]:
         st.subheader("🗒 수기 입력 항목")
         df_manual = pd.DataFrame(st.session_state.manual_data)
 
-        selected_indices = st.multiselect("삭제할 항목 선택 (인덱스)", options=df_manual.index.tolist())
+        df_manual['선택'] = False
+        selected_rows = st.data_editor(df_manual, num_rows='dynamic', use_container_width=True, key="edit_table")
+        selected_indices = selected_rows[selected_rows['선택']].index.tolist()
+
         if st.button("선택 항목 삭제") and selected_indices:
             st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
             st.success("선택한 항목이 삭제되었습니다.")
             st.rerun()
 
+        if st.button("선택 항목 수정하기") and selected_indices:
+            if len(selected_indices) == 1:
+                row = df_manual.loc[selected_indices[0]]
+                st.session_state.edit_buffer = {
+                    "manual_part": row.get("자재코드", ""),
+                    "manual_qty": row.get("수량", 0),
+                    "manual_price": row.get("단가", 0.0),
+                    "manual_amount": row.get("총금액", 0.0),
+                    "manual_origin": row.get("원산지", "")
+                }
+                st.session_state.manual_data.pop(selected_indices[0])
+                st.rerun()
+            else:
+                st.warning("수정은 한 행만 선택해야 합니다.")
+
         st.dataframe(df_manual)
 
-        edit_idx = st.number_input("수정할 행 번호", min_value=0, max_value=len(df_manual)-1 if len(df_manual) > 0 else 0, step=1)
-        if st.button("해당 행 수정하기"):
-            row = df_manual.iloc[edit_idx]
-            st.session_state.edit_buffer = {
-                "manual_part": row.get("자재코드", ""),
-                "manual_qty": row.get("수량", 0),
-                "manual_price": row.get("단가", 0.0),
-                "manual_amount": row.get("총금액", 0.0),
-                "manual_origin": row.get("원산지", "")
-            }
-            st.session_state.manual_data.pop(edit_idx)
-            st.rerun()
-
+        
         if st.button("수기 입력 전체 삭제"):
             st.session_state.manual_data = []
             st.success("수기 입력 항목이 초기화되었습니다.")
