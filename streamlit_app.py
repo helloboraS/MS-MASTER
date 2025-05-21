@@ -51,7 +51,6 @@ with tabs[0]:
             price = st.number_input("단가", min_value=0.0, step=10.0, key="manual_price")
         with cols[3]:
             calculated_amount = st.session_state.manual_qty * st.session_state.manual_price
-            st.markdown(f"💰 **자동 계산 총금액:** `{calculated_amount:,.0f}` 원")
             amount = st.number_input("총금액 (수정 가능)", value=calculated_amount, step=10.0, key="manual_amount")
         with cols[4]:
             origin = st.text_input("원산지", key="manual_origin")
