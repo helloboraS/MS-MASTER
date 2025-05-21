@@ -32,11 +32,11 @@ def reset_inputs():
             pass
 
 # --- Tabs ---
-tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 업로드"])
+tabs = st.tabs(["📝 수기 입력", "📎 엑셀 업로드"])
 
 # --- Manual Input Tab ---
 with tabs[0]:
-    st.subheader("🔧 수기 입력")
+    st.subheader("🛠️ 수기 입력")
     
     if 'manual_data' not in st.session_state:
         st.session_state.manual_data = []
@@ -84,7 +84,7 @@ with tabs[0]:
         st.rerun()
 
     if st.session_state.manual_data:
-        st.subheader("🗒 수기 입력 항목")
+        st.subheader("📋 수기 입력 항목")
         df_manual = pd.DataFrame(st.session_state.manual_data)
 
         df_manual.insert(0, '선택', False)
@@ -182,13 +182,13 @@ with tabs[1]:
                 def highlight_unmatched(row):
                     return ['background-color: #ffdddd'] * len(row) if row.get('_merge') == 'left_only' else [''] * len(row)
 
-                st.subheader("🔍 자재코드별 필터")
+                st.subheader("🔎 자재코드 필터")
                 selected_part = st.selectbox("자재코드 선택", ["(전체)"] + sorted(merged_result['자재코드'].dropna().unique().tolist()))
                 if selected_part != "(전체)":
                     merged_result = merged_result[merged_result['자재코드'] == selected_part]
                     merged_cleaned = merged_result.drop(columns=['_merge']) if '_merge' in merged_result.columns else merged_result.copy()
 
-                st.subheader("📊 수량 및 금액 합계")
+                st.subheader("💰 수량 및 금액 합계")
                 st.markdown(f"**총 수량:** {merged_result['수량'].sum()} | **총 금액:** {merged_result['총금액'].sum():,.0f} 원")
 
                 columns_to_show = [
