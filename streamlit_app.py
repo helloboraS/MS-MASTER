@@ -94,9 +94,43 @@ with tabs[0]:
             st.rerun()
 
         towrite_manual = BytesIO()
-        df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
+        
+        # 전체 리스트
+        df_all = df_manual.copy()
+
+        # 전파인증 요약
+        radio_df = df_all.dropna(subset=['전파인증번호'])
+        radio_summary = pd.DataFrame()
+        if not radio_df.empty:
+            radio_summary = radio_df.groupby([
+                '세번부호' if '세번부호' in radio_df.columns else 'HS CODE',
+                '원산지', '모델명', '전파인증번호'
+            ], as_index=False)['수량'].sum()
+
+        # 전기인증 요약
+        elec_df = df_all.dropna(subset=['전기인증번호'])
+        elec_summary = pd.DataFrame()
+        if not elec_df.empty:
+            elec_summary = elec_df.groupby([
+                '전기기관',
+                '세번부호' if '세번부호' in elec_df.columns else 'HS CODE',
+                '원산지', '모델명', '전기인증번호', '정격전압'
+            ], as_index=False)['수량'].sum()
+
+        # 수입신고용 시트
+        sheet4 = df_all.copy()
+        sheet4['공란'] = ''
+        sheet4['수량단위'] = 'EA'
+        sheet4 = sheet4[[col for col in ['HS CODE', '원산지', '공란', '수량', '수량단위', '단가', '총금액', '자재코드'] if col in sheet4.columns]]
+
+        with pd.ExcelWriter(towrite_manual, engine='openpyxl') as writer:
+            df_all.to_excel(writer, sheet_name='전체리스트', index=False)
+            radio_summary.to_excel(writer, sheet_name='전파인증 요약', index=False)
+            elec_summary.to_excel(writer, sheet_name='전기인증 요약', index=False)
+            sheet4.to_excel(writer, sheet_name='수입신고용', index=False)
+
         towrite_manual.seek(0)
-        st.download_button("수기입력 다운로드", towrite_manual, file_name="manual_input.xlsx")
+        st.download_button("수기입력 다운로드 (4시트 포함)", towrite_manual, file_name="manual_input_4sheets.xlsx")
 
 # --- Excel Upload & Merge Tab ---
 with tabs[1]:
