@@ -65,12 +65,6 @@ with tabs[0]:
             "단가": st.session_state.price,
             "총금액": st.session_state.amount,
             "원산지": st.session_state.origin
-        }{
-            "자재코드": st.session_state.part,
-            "수량": st.session_state.qty,
-            "단가": st.session_state.price,
-            "총금액": st.session_state.amount,
-            "원산지": st.session_state.origin
         }
 
         master_row = master_df[master_df['자재코드'] == st.session_state.part]
@@ -79,7 +73,6 @@ with tabs[0]:
                 manual_row[col] = master_row.iloc[0][col] if col in master_row.columns else ""
 
         st.session_state.manual_data.append(manual_row)
-        reset_inputs()
         reset_inputs()
         st.rerun()
 
