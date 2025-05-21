@@ -20,11 +20,11 @@ st.title('자재코드 인증정보 자동 병합')
 # --- Input State Reset ---
 def reset_inputs():
     for key, default in {
-        "part": "",
-        "qty": 0,
-        "price": 0.0,
-        "amount": 0.0,
-        "origin": ""
+        "manual_part": "",
+        "manual_qty": 0,
+        "manual_price": 0.0,
+        "manual_amount": 0.0,
+        "manual_origin": ""
     }.items():
         try:
             st.session_state[key] = default
@@ -44,30 +44,30 @@ with tabs[0]:
     with st.form("manual_entry_form"):
         cols = st.columns([2, 1, 1, 1, 2])
         with cols[0]:
-            part = st.text_input("자재코드", key="part")
+            part = st.text_input("자재코드", key="manual_part")
         with cols[1]:
-            qty = st.number_input("수량", min_value=0, step=1, key="qty")
+            qty = st.number_input("수량", min_value=0, step=1, key="manual_qty")
         with cols[2]:
-            price = st.number_input("단가", min_value=0.0, step=10.0, key="price")
+            price = st.number_input("단가", min_value=0.0, step=10.0, key="manual_price")
         with cols[3]:
             calculated_amount = st.session_state.qty * st.session_state.price
             st.markdown(f"💰 **자동 계산 총금액:** `{calculated_amount:,.0f}` 원")
-            amount = st.number_input("총금액 (수정 가능)", value=calculated_amount, step=10.0, key="amount")
+            amount = st.number_input("총금액 (수정 가능)", value=calculated_amount, step=10.0, key="manual_amount")
         with cols[4]:
-            origin = st.text_input("원산지", key="origin")
+            origin = st.text_input("원산지", key="manual_origin")
 
         submitted = st.form_submit_button("추가")
 
     if submitted:
         manual_row = {
-            "자재코드": st.session_state.part,
-            "수량": st.session_state.qty,
-            "단가": st.session_state.price,
-            "총금액": st.session_state.amount,
-            "원산지": st.session_state.origin
+            "자재코드": st.session_state.manual_part,
+            "수량": st.session_state.manual_qty,
+            "단가": st.session_state.manual_price,
+            "총금액": st.session_state.manual_amount,
+            "원산지": st.session_state.manual_origin
         }
 
-        master_row = master_df[master_df['자재코드'] == st.session_state.part]
+        master_row = master_df[master_df['자재코드'] == st.session_state.manual_part]
         if not master_row.empty:
             for col in ["HS CODE", "모델규격", "모델명", "전파인증번호", "전기기관", "전기인증번호", "정격전압"]:
                 manual_row[col] = master_row.iloc[0][col] if col in master_row.columns else ""
