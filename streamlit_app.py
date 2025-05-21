@@ -57,15 +57,9 @@ with tabs[0]:
             origin = st.text_input("원산지", key="origin")
 
         submitted = st.form_submit_button("추가")
-        if submitted:
-            st.session_state.part = ""
-            st.session_state.qty = 0
-            st.session_state.price = 0.0
-            st.session_state.amount = 0.0
-            st.session_state.origin = ""
 
     if submitted:
-        manual_row = {
+                manual_row = {
             "자재코드": st.session_state.part,
             "수량": st.session_state.qty,
             "단가": st.session_state.price,
@@ -79,6 +73,7 @@ with tabs[0]:
                 manual_row[col] = master_row.iloc[0][col] if col in master_row.columns else ""
 
         st.session_state.manual_data.append(manual_row)
+        reset_inputs()
         reset_inputs()
         st.rerun()
 
