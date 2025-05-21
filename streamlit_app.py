@@ -41,31 +41,40 @@ with tabs[0]:
     if 'manual_data' not in st.session_state:
         st.session_state.manual_data = []
 
+    submitted = False
     with st.form("manual_entry_form"):
         cols = st.columns([2, 1, 1, 1, 2])
         with cols[0]:
-            st.text_input("자재코드", key="part")
+            part = st.text_input("자재코드", key="part")
         with cols[1]:
-            st.number_input("수량", min_value=0, step=1, key="qty")
+            qty = st.number_input("수량", min_value=0, step=1, key="qty")
         with cols[2]:
-            st.number_input("단가", min_value=0.0, step=10.0, key="price")
+            price = st.number_input("단가", min_value=0.0, step=10.0, key="price")
         with cols[3]:
-            st.number_input("총금액", value=0.0, step=10.0, key="amount")
+            auto_amount = st.session_state.qty * st.session_state.price
+            amount = st.number_input("총금액", value=auto_amount, step=10.0, key="amount")
         with cols[4]:
-            st.text_input("원산지", key="origin")
+            origin = st.text_input("원산지", key="origin")
 
         submitted = st.form_submit_button("추가")
 
-        if submitted:
-            st.session_state.manual_data.append({
-                "자재코드": st.session_state.part,
-                "수량": st.session_state.qty,
-                "단가": st.session_state.price,
-                "총금액": st.session_state.amount,
-                "원산지": st.session_state.origin
-            })
-            reset_inputs()
-            st.rerun()
+    if submitted:
+        manual_row = {
+            "자재코드": st.session_state.part,
+            "수량": st.session_state.qty,
+            "단가": st.session_state.price,
+            "총금액": st.session_state.amount,
+            "원산지": st.session_state.origin
+        }
+
+        master_row = master_df[master_df['자재코드'] == st.session_state.part]
+        if not master_row.empty:
+            for col in ["HS CODE", "모델규격", "모델명", "전파인증번호", "전기기관", "전기인증번호", "정격전압"]:
+                manual_row[col] = master_row.iloc[0][col] if col in master_row.columns else ""
+
+        st.session_state.manual_data.append(manual_row)
+        reset_inputs()
+        st.experimental_rerun()
 
     if st.session_state.manual_data:
         st.subheader("🗒 수기 입력 항목")
@@ -75,14 +84,14 @@ with tabs[0]:
         if st.button("선택 항목 삭제") and selected_indices:
             st.session_state.manual_data = [row for i, row in enumerate(st.session_state.manual_data) if i not in selected_indices]
             st.success("선택한 항목이 삭제되었습니다.")
-            st.rerun()
+            st.experimental_rerun()
 
         st.dataframe(df_manual)
 
         if st.button("수기 입력 전체 삭제"):
             st.session_state.manual_data = []
             st.success("수기 입력 항목이 초기화되었습니다.")
-            st.rerun()
+            st.experimental_rerun()
 
         towrite_manual = BytesIO()
         df_manual.to_excel(towrite_manual, index=False, engine='openpyxl')
@@ -101,7 +110,7 @@ with tabs[1]:
             if '자재코드' not in input_df.columns:
                 st.error("'자재코드' 컬럼이 엑셀에 포함되어 있어야 합니다.")
             else:
-                if 'manual_data' in st.session_state and st.session_state.manual_data:
+                if st.session_state.manual_data:
                     df_manual = pd.DataFrame(st.session_state.manual_data)
                     input_df = pd.concat([input_df, df_manual], ignore_index=True)
 
