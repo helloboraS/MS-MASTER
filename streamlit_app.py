@@ -15,7 +15,7 @@ def load_master_data():
 master_df = load_master_data()
 
 # --- App Title ---
-st.title('INVOICE 작업')
+st.title('자재코드 인증정보 자동 병합')
 
 # --- Input State Reset ---
 def reset_inputs():
@@ -32,7 +32,7 @@ def reset_inputs():
             pass
 
 # --- Tabs ---
-tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 업로드"])
+tabs = st.tabs(["✍ 수기 입력", "📂 엑셀 병합"])
 
 # --- Manual Input Tab ---
 with tabs[0]:
@@ -147,7 +147,7 @@ with tabs[0]:
         sheet4['공란'] = ''
         sheet4['수량단위'] = 'EA'
         sheet4 = sheet4[[col for col in ['HS CODE', '원산지', '공란', '수량', '수량단위', '단가', '총금액', '자재코드'] if col in sheet4.columns]]
-        sheet4 = sheet4.sort_values(by=['HS CODE', '원산지']) if col in sheet4.columns]]
+        sheet4 = sheet4.sort_values(by=[col for col in ['HS CODE', '원산지'] if col in sheet4.columns])
 
         with pd.ExcelWriter(towrite_manual, engine='openpyxl') as writer:
             df_all.to_excel(writer, sheet_name='전체리스트', index=False)
@@ -160,7 +160,7 @@ with tabs[0]:
 
 # --- Excel Upload & Merge Tab ---
 with tabs[1]:
-    st.subheader("📂 엑셀 업로드")
+    st.subheader("📂 엑셀 업로드 및 병합")
     uploaded_file = st.file_uploader("자재코드, 수량, 원산지, 단가, 총금액 포함된 엑셀 업로드", type=["xlsx"])
 
     if uploaded_file:
