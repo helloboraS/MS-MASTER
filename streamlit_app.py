@@ -125,7 +125,9 @@ with tabs[0]:
         df_all = df_manual.copy()
 
         # 전파인증 요약
-        radio_df = df_all.dropna(subset=['전파인증번호'])
+        radio_df = pd.DataFrame()
+        if '전파인증번호' in df_all.columns:
+            radio_df = df_all.dropna(subset=['전파인증번호'])
         radio_summary = pd.DataFrame()
         if not radio_df.empty:
             radio_summary = radio_df.groupby([
@@ -134,7 +136,9 @@ with tabs[0]:
             ], as_index=False)['수량'].sum()
 
         # 전기인증 요약
-        elec_df = df_all.dropna(subset=['전기인증번호'])
+        elec_df = pd.DataFrame()
+        if '전기인증번호' in df_all.columns:
+            elec_df = df_all.dropna(subset=['전기인증번호'])
         elec_summary = pd.DataFrame()
         if not elec_df.empty:
             elec_summary = elec_df.groupby([
