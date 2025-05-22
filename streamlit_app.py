@@ -88,9 +88,8 @@ with tabs[0]:
         df_manual = pd.DataFrame(st.session_state.manual_data)
 
         columns_to_show = [
-            '선택', '자재코드', 'HS CODE', '모델규격', '모델명',
-            '전파인증번호', '전기기관', '전기인증번호', '정격전압',
-            '수량', '단가', '총금액', '원산지'
+            '선택', 'HS CODE', '자재코드', '모델규격', '수량', '단가', '총금액', '원산지',
+            '모델명', '전파인증번호', '전기기관', '전기인증번호', '정격전압'
         ]
         for col in columns_to_show:
             if col not in df_manual.columns:
