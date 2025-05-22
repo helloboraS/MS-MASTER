@@ -87,7 +87,17 @@ with tabs[0]:
         st.subheader("📋 수기 입력 항목")
         df_manual = pd.DataFrame(st.session_state.manual_data)
 
-        df_manual.insert(0, '선택', False)
+        columns_to_show = [
+            '선택', '자재코드', 'HS CODE', '모델규격', '모델명',
+            '전파인증번호', '전기기관', '전기인증번호', '정격전압',
+            '수량', '단가', '총금액', '원산지'
+        ]
+        for col in columns_to_show:
+            if col not in df_manual.columns:
+                df_manual[col] = ''
+
+        df_manual = df_manual[columns_to_show]
+        df_manual['선택'] = False
         selected_rows = st.data_editor(df_manual, num_rows='dynamic', use_container_width=True, key="edit_table")
         selected_indices = selected_rows[selected_rows['선택']].index.tolist()
 
